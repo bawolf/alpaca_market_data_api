@@ -7,9 +7,9 @@
 # General application configuration
 import Config
 
-config :alpaca_market_data_api,
-  api_client_id: System.get_env("ALPACA_CLIENT_ID"),
-  api_secret: System.get_env("ALPACA_CLIENT_SECRET")
+# config :alpaca_market_data_api,
+#   api_client_id: System.get_env("ALPACA_CLIENT_ID"),
+#   api_secret: System.get_env("ALPACA_CLIENT_SECRET")
 
 config :alpaca_market_data_api, base_url: "https://data.alpaca.markets"
 
