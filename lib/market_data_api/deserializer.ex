@@ -15,6 +15,7 @@ defmodule MarketDataAPI.Deserializer do
   def jason_decode(json, module) do
     json
     |> jason_decode()
+    |> IO.inspect()
     |> case do
       {:ok, decoded} -> {:ok, to_struct(decoded, module)}
       {:error, _} = error -> error

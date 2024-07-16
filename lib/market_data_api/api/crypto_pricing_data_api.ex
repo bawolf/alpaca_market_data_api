@@ -30,7 +30,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.BarsResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_bars_for_crypto_symbol(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.BarsResponse.t} | {:error, Tesla.Env.t}
+  @spec get_bars_for_crypto_symbol(Tesla.Env.client(), String.t(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.BarsResponse.t()} | {:error, Tesla.Env.t()}
   def get_bars_for_crypto_symbol(connection, symbol, timeframe, opts \\ []) do
     optional_params = %{
       :start => :query,
@@ -43,15 +44,17 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
     request =
       %{}
       |> method(:get)
-      |> url("/v1beta1/crypto/#{symbol}/bars")
+      |> url("/v1beta3/crypto/us/bars")
+      |> add_param(:query, :symbols, symbol)
       |> add_param(:query, :timeframe, timeframe)
+      # |> add_param(:query, :symbols, symbol)
       |> add_optional_params(optional_params, opts)
       |> Enum.into([])
 
     connection
     |> Connection.request(request)
     |> evaluate_response([
-      {200, MarketDataAPI.Model.BarsResponse}
+      {200, MarketDataAPI.Model.MultiBarsResponse}
     ])
   end
 
@@ -76,7 +79,12 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.MultiBarsResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_bars_for_multiple_crypto_symbols(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.MultiBarsResponse.t} | {:error, Tesla.Env.t}
+  @spec get_bars_for_multiple_crypto_symbols(
+          Tesla.Env.client(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: {:ok, MarketDataAPI.Model.MultiBarsResponse.t()} | {:error, Tesla.Env.t()}
   def get_bars_for_multiple_crypto_symbols(connection, symbols, timeframe, opts \\ []) do
     optional_params = %{
       :start => :query,
@@ -86,10 +94,12 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
       :exchanges => :query
     }
 
+    loc = Keyword.get(opts, :loc, "us")
+
     request =
       %{}
       |> method(:get)
-      |> url("/v1beta1/crypto/bars")
+      |> url("/v1beta3/crypto/#{loc}/bars")
       |> add_param(:query, :symbols, symbols)
       |> add_param(:query, :timeframe, timeframe)
       |> add_optional_params(optional_params, opts)
@@ -116,7 +126,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.CryptoSpreadsResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_crypto_meta_spreads(Tesla.Env.client, keyword()) :: {:ok, MarketDataAPI.Model.CryptoSpreadsResponse.t} | {:error, Tesla.Env.t}
+  @spec get_crypto_meta_spreads(Tesla.Env.client(), keyword()) ::
+          {:ok, MarketDataAPI.Model.CryptoSpreadsResponse.t()} | {:error, Tesla.Env.t()}
   def get_crypto_meta_spreads(connection, _opts \\ []) do
     request =
       %{}
@@ -147,7 +158,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestBarResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_bars_for_crypto_symbol(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestBarResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_bars_for_crypto_symbol(Tesla.Env.client(), String.t(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.LatestBarResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_bars_for_crypto_symbol(connection, symbol, exchange, _opts \\ []) do
     request =
       %{}
@@ -179,7 +191,12 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestMultiBarsResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_bars_for_multiple_crypto_symbols(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestMultiBarsResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_bars_for_multiple_crypto_symbols(
+          Tesla.Env.client(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: {:ok, MarketDataAPI.Model.LatestMultiBarsResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_bars_for_multiple_crypto_symbols(connection, symbols, exchange, _opts \\ []) do
     request =
       %{}
@@ -212,7 +229,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestQuoteResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_quote_for_crypto_symbol(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestQuoteResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_quote_for_crypto_symbol(Tesla.Env.client(), String.t(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.LatestQuoteResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_quote_for_crypto_symbol(connection, symbol, exchange, _opts \\ []) do
     request =
       %{}
@@ -244,7 +262,12 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestMultiQuotesResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_quotes_for_multiple_crypto_symbols(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestMultiQuotesResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_quotes_for_multiple_crypto_symbols(
+          Tesla.Env.client(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: {:ok, MarketDataAPI.Model.LatestMultiQuotesResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_quotes_for_multiple_crypto_symbols(connection, symbols, exchange, _opts \\ []) do
     request =
       %{}
@@ -277,7 +300,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestTradeResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_trades_for_crypto_symbol(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestTradeResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_trades_for_crypto_symbol(Tesla.Env.client(), String.t(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.LatestTradeResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_trades_for_crypto_symbol(connection, symbol, exchange, _opts \\ []) do
     request =
       %{}
@@ -295,7 +319,7 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
 
   @doc """
   Get Latest Trade data for multiple Crypto symbols
-  Provides latest trade data for a list of given crypto symbols. 
+  Provides latest trade data for a list of given crypto symbols.
 
   ### Parameters
 
@@ -309,7 +333,12 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestMultiTradesResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_trades_for_multiple_crypto_symbols(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestMultiTradesResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_trades_for_multiple_crypto_symbols(
+          Tesla.Env.client(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: {:ok, MarketDataAPI.Model.LatestMultiTradesResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_trades_for_multiple_crypto_symbols(connection, symbols, exchange, _opts \\ []) do
     request =
       %{}
@@ -342,7 +371,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestXbboResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_xbbo_for_crypto_symbol(Tesla.Env.client, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestXbboResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_xbbo_for_crypto_symbol(Tesla.Env.client(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.LatestXbboResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_xbbo_for_crypto_symbol(connection, symbol, opts \\ []) do
     optional_params = %{
       :exchanges => :query
@@ -378,7 +408,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.LatestMultiXbboResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_latest_xbbo_for_multiple_crypto_symbols(Tesla.Env.client, String.t, keyword()) :: {:ok, MarketDataAPI.Model.LatestMultiXbboResponse.t} | {:error, Tesla.Env.t}
+  @spec get_latest_xbbo_for_multiple_crypto_symbols(Tesla.Env.client(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.LatestMultiXbboResponse.t()} | {:error, Tesla.Env.t()}
   def get_latest_xbbo_for_multiple_crypto_symbols(connection, symbols, opts \\ []) do
     optional_params = %{
       :exchanges => :query
@@ -419,7 +450,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.QuotesResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_quotes_for_crypto_symbol(Tesla.Env.client, String.t, keyword()) :: {:ok, MarketDataAPI.Model.QuotesResponse.t} | {:error, Tesla.Env.t}
+  @spec get_quotes_for_crypto_symbol(Tesla.Env.client(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.QuotesResponse.t()} | {:error, Tesla.Env.t()}
   def get_quotes_for_crypto_symbol(connection, symbol, opts \\ []) do
     optional_params = %{
       :start => :query,
@@ -463,7 +495,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.MultiQuotesReponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_quotes_for_multiple_crypto_symbols(Tesla.Env.client, String.t, keyword()) :: {:ok, MarketDataAPI.Model.MultiQuotesReponse.t} | {:error, Tesla.Env.t}
+  @spec get_quotes_for_multiple_crypto_symbols(Tesla.Env.client(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.MultiQuotesReponse.t()} | {:error, Tesla.Env.t()}
   def get_quotes_for_multiple_crypto_symbols(connection, symbols, opts \\ []) do
     optional_params = %{
       :start => :query,
@@ -504,7 +537,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.Snapshot.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_snapshot_for_crypto_symbol(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, MarketDataAPI.Model.Snapshot.t} | {:error, Tesla.Env.t}
+  @spec get_snapshot_for_crypto_symbol(Tesla.Env.client(), String.t(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.Snapshot.t()} | {:error, Tesla.Env.t()}
   def get_snapshot_for_crypto_symbol(connection, symbol, exchange, _opts \\ []) do
     request =
       %{}
@@ -536,7 +570,12 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, %{}}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_snapshots_for_multiple_crypto_symbols(Tesla.Env.client, String.t, String.t, keyword()) :: {:ok, map()} | {:error, Tesla.Env.t}
+  @spec get_snapshots_for_multiple_crypto_symbols(
+          Tesla.Env.client(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: {:ok, map()} | {:error, Tesla.Env.t()}
   def get_snapshots_for_multiple_crypto_symbols(connection, exchange, symbols, _opts \\ []) do
     request =
       %{}
@@ -573,7 +612,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.TradesResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_trades_for_crypto_symbol(Tesla.Env.client, String.t, keyword()) :: {:ok, MarketDataAPI.Model.TradesResponse.t} | {:error, Tesla.Env.t}
+  @spec get_trades_for_crypto_symbol(Tesla.Env.client(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.TradesResponse.t()} | {:error, Tesla.Env.t()}
   def get_trades_for_crypto_symbol(connection, symbol, opts \\ []) do
     optional_params = %{
       :start => :query,
@@ -617,7 +657,8 @@ defmodule MarketDataAPI.Api.CryptoPricingDataAPI do
   - `{:ok, MarketDataAPI.Model.MultiTradesResponse.t}` on success
   - `{:error, Tesla.Env.t}` on failure
   """
-  @spec get_trades_for_multiple_crypto_symbols(Tesla.Env.client, String.t, keyword()) :: {:ok, MarketDataAPI.Model.MultiTradesResponse.t} | {:error, Tesla.Env.t}
+  @spec get_trades_for_multiple_crypto_symbols(Tesla.Env.client(), String.t(), keyword()) ::
+          {:ok, MarketDataAPI.Model.MultiTradesResponse.t()} | {:error, Tesla.Env.t()}
   def get_trades_for_multiple_crypto_symbols(connection, symbols, opts \\ []) do
     optional_params = %{
       :start => :query,
